@@ -15,9 +15,10 @@ export const config = {
   map: {
     defaultCenter: [18.5, 68.0] as [number, number],
     defaultZoom: 6,
-    tileUrl: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    tileAttribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    tileUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    tileAttribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
   },
+
   dateFormat: 'dd MMM yyyy',
   timeFormat: 'HH:mm',
   dateTimeFormat: 'dd MMM yyyy, HH:mm',

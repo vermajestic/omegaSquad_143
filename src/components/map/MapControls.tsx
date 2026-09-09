@@ -1,5 +1,7 @@
 import React from 'react';
-import { Eye, EyeOff, Compass, Maximize2, Minimize2, Navigation } from 'lucide-react';
+import { Eye, EyeOff, Compass, Maximize2, Minimize2, Navigation, Layers } from 'lucide-react';
+
+export type BasemapMode = 'satellite' | 'dark' | 'ocean';
 
 export interface MapLayerState {
   showSpills: boolean;
@@ -15,6 +17,8 @@ interface MapControlsProps {
   onRecenter: () => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  basemapMode?: BasemapMode;
+  onChangeBasemap?: (mode: BasemapMode) => void;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
@@ -23,9 +27,56 @@ export const MapControls: React.FC<MapControlsProps> = ({
   onRecenter,
   isFullscreen = false,
   onToggleFullscreen,
+  basemapMode = 'satellite',
+  onChangeBasemap,
 }) => {
   return (
     <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+      {/* Basemap Style Selector */}
+      {onChangeBasemap && (
+        <div className="bg-white/95 dark:bg-[#0d1320]/95 backdrop-blur-md border border-slate-200 dark:border-[#1e293b] rounded-lg p-1.5 shadow-sm dark:shadow-none flex flex-col gap-1 text-xs text-slate-700 dark:text-slate-300 min-w-[140px] transition-colors duration-150">
+          <div className="text-[10px] uppercase font-bold text-slate-400 px-1 pb-1 border-b border-slate-100 dark:border-[#1e293b] mb-0.5 flex items-center justify-between font-mono">
+            <span>Basemap</span>
+            <Layers className="w-3 h-3 text-cyan-500" />
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <button
+              onClick={() => onChangeBasemap('satellite')}
+              className={`px-1.5 py-1 rounded text-[10px] font-bold uppercase transition-colors text-center cursor-pointer ${
+                basemapMode === 'satellite'
+                  ? 'bg-cyan-500 text-slate-950 font-extrabold shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title="Esri World Imagery (Satellite)"
+            >
+              Sat
+            </button>
+            <button
+              onClick={() => onChangeBasemap('dark')}
+              className={`px-1.5 py-1 rounded text-[10px] font-bold uppercase transition-colors text-center cursor-pointer ${
+                basemapMode === 'dark'
+                  ? 'bg-cyan-500 text-slate-950 font-extrabold shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title="Esri Dark Canvas"
+            >
+              Dark
+            </button>
+            <button
+              onClick={() => onChangeBasemap('ocean')}
+              className={`px-1.5 py-1 rounded text-[10px] font-bold uppercase transition-colors text-center cursor-pointer ${
+                basemapMode === 'ocean'
+                  ? 'bg-cyan-500 text-slate-950 font-extrabold shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title="Esri Ocean Base"
+            >
+              Sea
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Recenter / Focus Controls */}
       <div className="bg-white/95 dark:bg-[#0d1320]/95 backdrop-blur-md border border-slate-200 dark:border-[#1e293b] rounded-lg p-1.5 shadow-sm dark:shadow-none flex flex-col gap-1 transition-colors duration-150">
         <button

@@ -18,6 +18,7 @@ import { ImageViewer } from '@/components/detection/ImageViewer';
 import { DetectionResult } from '@/components/detection/DetectionResult';
 import { AnalysisIndicators } from '@/components/detection/AnalysisIndicators';
 import { SceneSelector } from '@/components/detection/SceneSelector';
+import { uploadAndDetectSpill } from '@/services/detectionService';
 
 export const SpillDetectionPage: React.FC = () => {
   const [scenesList, setScenesList] = useState<SatelliteScene[]>(mockSatelliteScenes);
@@ -27,8 +28,12 @@ export const SpillDetectionPage: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [activeIncident, setActiveIncident] = useState(mockIncidents[0]);
   
-  // Custom upload states
+  // Custom upload & live detection states
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [detectedMaskUrl, setDetectedMaskUrl] = useState<string | null>(null);
+  const [customConfidence, setCustomConfidence] = useState<number | null>(null);
+  const [customArea, setCustomArea] = useState<number | null>(null);
+  const [customCentroid, setCustomCentroid] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isIngesting, setIsIngesting] = useState<boolean>(false);
@@ -37,6 +42,7 @@ export const SpillDetectionPage: React.FC = () => {
   const [uploadBanner, setUploadBanner] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   // Close upload modal on Escape key and lock background scroll
   useEffect(() => {
@@ -63,6 +69,10 @@ export const SpillDetectionPage: React.FC = () => {
     // If returning to a default scene without custom image
     if (!scene.id.startsWith('CUSTOM-')) {
       setUploadedImageUrl(null);
+      setDetectedMaskUrl(null);
+      setCustomConfidence(null);
+      setCustomArea(null);
+      setCustomCentroid(null);
     }
     // Switch to corresponding incident or fallback to primary
     const matched = mockIncidents.find(i => i.satellite === scene.satellite && i.region === scene.region) || mockIncidents[0];
@@ -117,61 +127,60 @@ export const SpillDetectionPage: React.FC = () => {
     }
   };
 
-  // Process & Ingest uploaded satellite raster
-  const handleProcessUpload = (fileToProcess?: File) => {
+  // Process & Ingest uploaded satellite raster via Backend
+  const handleProcessUpload = async (fileToProcess?: File) => {
     const file = fileToProcess || selectedFile;
     if (!file) return;
 
     setIsIngesting(true);
-    setIngestProgress(15);
-    setIngestStatusText('Reading GeoTIFF TIFF tags & spatial raster bounds (EPSG:4326)...');
+    setIngestProgress(20);
+    setIngestStatusText('Reading raster metadata and preparing telemetry payload...');
 
-    setTimeout(() => {
-      setIngestProgress(50);
-      setIngestStatusText('Radiometric calibration: Computing sigma-0 radar backscatter matrix...');
-    }, 500);
+    // If the file is an image format, create an object URL for preview
+    if (file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|webp|bmp|tif|tiff)$/i)) {
+      const objectUrl = URL.createObjectURL(file);
+      setUploadedImageUrl(objectUrl);
+    }
 
-    setTimeout(() => {
-      setIngestProgress(85);
-      setIngestStatusText('Extracting C-Band polarization channels (VV/VH) & synthetic masks...');
-    }, 1000);
+    setIngestProgress(50);
+    setIngestStatusText('Streaming telemetry to Ocean Sentinel ResNet-34 U-Net backend...');
 
-    setTimeout(() => {
-      setIngestProgress(100);
-      setIngestStatusText('Ingestion complete! Synthesizing UNet anomaly detections...');
+    // Send to backend API
+    const detectionResult = await uploadAndDetectSpill(file);
 
-      // If the file is an image format, create an object URL for preview
-      if (file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|webp|bmp)$/i)) {
-        const objectUrl = URL.createObjectURL(file);
-        setUploadedImageUrl(objectUrl);
-      }
+    setIngestProgress(85);
+    setIngestStatusText('Receiving anomaly segmentation tensor and computing footprint...');
 
-      // Generate a new custom satellite scene
-      const isSAR = !file.name.toLowerCase().includes('opt') && !file.name.toLowerCase().includes('sentinel2');
-      const customSceneId = `CUSTOM-${Math.floor(1000 + Math.random() * 9000)}`;
-      
-      const newCustomScene: SatelliteScene = {
-        id: customSceneId,
-        satellite: isSAR ? 'Sentinel-1' : 'Sentinel-2',
-        sensor: isSAR ? 'SAR' : 'EO',
-        acquisitionDate: new Date().toISOString(),
-        region: `Custom Ingest (${file.name.slice(0, 18)}...)`,
-        coverage: 14.8,
-        processingStatus: 'analyzed',
-        resolution: '10m C-SAR',
-        coordinates: { lat: 18.7421, lng: 67.8214 },
-      };
+    if (detectionResult.mask_url) {
+      setDetectedMaskUrl(detectionResult.mask_url);
+    }
+    setCustomConfidence(detectionResult.confidence);
+    setCustomArea(detectionResult.estimatedArea);
+    setCustomCentroid({ lat: detectionResult.centroid.latitude, lng: detectionResult.centroid.longitude });
 
-      setScenesList(prev => [newCustomScene, ...prev]);
-      setSelectedScene(newCustomScene);
-      setIsIngesting(false);
-      setIsUploadModalOpen(false);
-      setSelectedFile(null);
-      setUploadBanner(`Successfully ingested product: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
+    // Generate a new custom satellite scene
+    const isSAR = !file.name.toLowerCase().includes('opt') && !file.name.toLowerCase().includes('sentinel2');
+    const customSceneId = `CUSTOM-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    const newCustomScene: SatelliteScene = {
+      id: customSceneId,
+      satellite: isSAR ? 'Sentinel-1' : 'Sentinel-2',
+      sensor: isSAR ? 'SAR' : 'EO',
+      acquisitionDate: new Date().toISOString(),
+      region: `Custom Ingest (${file.name.slice(0, 18)}...)`,
+      coverage: detectionResult.estimatedArea || 14.8,
+      processingStatus: 'analyzed',
+      resolution: '10m C-SAR',
+      coordinates: { lat: detectionResult.centroid.latitude, lng: detectionResult.centroid.longitude },
+    };
 
-      // Trigger automatic AI inference
-      handleRunInference();
-    }, 1500);
+    setScenesList(prev => [newCustomScene, ...prev]);
+    setSelectedScene(newCustomScene);
+    setIngestProgress(100);
+    setIsIngesting(false);
+    setIsUploadModalOpen(false);
+    setSelectedFile(null);
+    setUploadBanner(`Inference complete: ${file.name} — ${detectionResult.confidence}% confidence, ${detectionResult.estimatedArea} km² slick detected (${detectionResult.model_type || 'ResNet-34 U-Net'})`);
   };
 
   // Load verified sample SAR scene
@@ -185,15 +194,17 @@ export const SpillDetectionPage: React.FC = () => {
 
   const detectionData: SpillDetection = {
     id: activeIncident.id,
-    confidence: activeIncident.confidence ?? 94.2,
-    coordinates: activeIncident.coordinates ?? { lat: 18.7421, lng: 67.8214 },
-    estimatedArea: activeIncident.estimatedArea ?? 12.4,
+    confidence: customConfidence ?? activeIncident.confidence ?? 94.2,
+    coordinates: customCentroid ?? activeIncident.coordinates ?? { lat: 18.7421, lng: 67.8214 },
+    estimatedArea: customArea ?? activeIncident.estimatedArea ?? 12.4,
     detectionTime: activeIncident.detectionTime ?? '2026-09-04T18:42:00Z',
     satellite: selectedScene.satellite,
     sensor: selectedScene.sensor as 'SAR' | 'EO',
     originalImageUrl: uploadedImageUrl || undefined,
+    maskUrl: detectedMaskUrl || undefined,
     analysisIndicators: activeIncident.analysisIndicators || [],
   };
+
 
   return (
     <main className="space-y-6 pb-12">

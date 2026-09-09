@@ -6,3 +6,7 @@ Pillow>=10.0
 rasterio>=1.3
 python-dotenv>=1.0
 requests>=2.32
+torch
+torchvision
+segmentation-models-pytorch
+

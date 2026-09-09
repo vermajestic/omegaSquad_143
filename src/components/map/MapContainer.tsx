@@ -6,7 +6,7 @@ import { VesselMarker } from './VesselMarker';
 import { VesselTrackLine } from './VesselTrackLine';
 import { DetectionZone } from './DetectionZone';
 import { MapLegend } from './MapLegend';
-import { MapControls, type MapLayerState } from './MapControls';
+import { MapControls, type MapLayerState, type BasemapMode } from './MapControls';
 import { DriftSimulationLayer } from './DriftSimulationLayer';
 import { useAppContext } from '@/contexts/AppContext';
 
@@ -65,6 +65,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     showZones: true,
     showDriftSimulation: true,
   });
+  const [basemapMode, setBasemapMode] = useState<BasemapMode>('satellite');
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // When selected incident changes, focus map onto it
@@ -95,22 +96,59 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         center={mapCenter}
         zoom={mapZoom}
         scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%', background: theme === 'dark' ? '#080c14' : '#f1f5f9' }}
+        style={{ height: '100%', width: '100%', background: '#080c14' }}
       >
         <MapViewController center={mapCenter} zoom={mapZoom} />
 
-        {/* Dynamic basemap: Dark Matter in dark mode, Voyager in light mode */}
-        <TileLayer
-          key={theme}
-          attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url={
-            theme === 'dark'
-              ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-              : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-          }
-          subdomains="abcd"
-          maxZoom={19}
-        />
+        {/* Clean, unwatermarked Esri Basemaps with no API key requirement */}
+        {basemapMode === 'satellite' && (
+          <>
+            <TileLayer
+              key="esri-satellite"
+              attribution='Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+            />
+            <TileLayer
+              key="esri-satellite-labels"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+            />
+          </>
+        )}
+
+        {basemapMode === 'dark' && (
+          <>
+            <TileLayer
+              key="esri-dark"
+              attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={16}
+            />
+            <TileLayer
+              key="esri-dark-labels"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={16}
+            />
+          </>
+        )}
+
+        {basemapMode === 'ocean' && (
+          <>
+            <TileLayer
+              key="esri-ocean"
+              attribution='Tiles &copy; Esri, GEBCO, NOAA, National Geographic, DeLorme'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={13}
+            />
+            <TileLayer
+              key="esri-ocean-labels"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={13}
+            />
+          </>
+        )}
+
 
         {/* Detection Zones (SAR slick boundaries) */}
         {layers.showZones && incidents.map(inc => (
@@ -173,7 +211,10 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           onRecenter={handleRecenter}
           isFullscreen={isFullscreen}
           onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+          basemapMode={basemapMode}
+          onChangeBasemap={setBasemapMode}
         />
+
       )}
 
       {/* Floating Legend */}

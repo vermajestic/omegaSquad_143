@@ -132,31 +132,44 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         {/* 3. AI Detection Mask (Neon Cyan Contour + Segmentation Heatmap) */}
         {showOverlay && (
           <g style={{ opacity, transition: 'opacity 0.2s' }}>
-            {/* Segmentation Mask Fill */}
-            <path
-              d="M 280 210 
-                 C 310 180, 370 170, 430 190 
-                 C 500 210, 560 200, 600 240 
-                 C 630 270, 610 320, 550 335 
-                 C 490 350, 460 380, 400 370 
-                 C 330 360, 290 330, 270 290 
-                 C 255 255, 260 230, 280 210 Z"
-              fill="rgba(6, 182, 212, 0.35)"
-              stroke="#06b6d4"
-              strokeWidth="2.5"
-              filter="url(#cyanGlow)"
-            />
+            {detection?.maskUrl ? (
+              <image
+                href={detection.maskUrl}
+                x="0"
+                y="0"
+                width="800"
+                height="500"
+                preserveAspectRatio="none"
+              />
+            ) : (
+              <>
+                {/* Segmentation Mask Fill */}
+                <path
+                  d="M 280 210 
+                     C 310 180, 370 170, 430 190 
+                     C 500 210, 560 200, 600 240 
+                     C 630 270, 610 320, 550 335 
+                     C 490 350, 460 380, 400 370 
+                     C 330 360, 290 330, 270 290 
+                     C 255 255, 260 230, 280 210 Z"
+                  fill="rgba(6, 182, 212, 0.35)"
+                  stroke="#06b6d4"
+                  strokeWidth="2.5"
+                  filter="url(#cyanGlow)"
+                />
 
-            <path
-              d="M 460 280 
-                 C 490 270, 540 285, 570 300 
-                 C 610 320, 620 345, 590 365 
-                 C 560 380, 520 370, 480 355 
-                 C 450 340, 440 300, 460 280 Z"
-              fill="rgba(6, 182, 212, 0.45)"
-              stroke="#22d3ee"
-              strokeWidth="2"
-            />
+                <path
+                  d="M 460 280 
+                     C 490 270, 540 285, 570 300 
+                     C 610 320, 620 345, 590 365 
+                     C 560 380, 520 370, 480 355 
+                     C 450 340, 440 300, 460 280 Z"
+                  fill="rgba(6, 182, 212, 0.45)"
+                  stroke="#22d3ee"
+                  strokeWidth="2"
+                />
+              </>
+            )}
 
             {/* Bounding Box Reticle */}
             <rect
@@ -180,7 +193,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
             <g transform="translate(260, 150)">
               <rect width="180" height="22" rx="4" fill="#0a0f1e" stroke="#06b6d4" strokeWidth="1" />
               <text x="8" y="15" fill="#06b6d4" fontSize="11" fontFamily="monospace" fontWeight="bold">
-                CLASS: OIL SLICK (94.2%)
+                CLASS: OIL SLICK ({detection?.confidence ? `${detection.confidence}%` : '94.2%'})
               </text>
             </g>
 
