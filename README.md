@@ -1,4 +1,4 @@
-# 🌊 Ocean Sentinel (omegaSquad)
+# 🌊 Ocean Sentinel (OmegaSquad)
 > **AI-Powered Marine Oil Spill Intelligence, Trajectory Hindcasting & Forensic Vessel Attribution Platform**  
 > *Developed for Smart India Hackathon (SIH 2026) — Problem Statement ID: 26143 (NTRO)*
 
