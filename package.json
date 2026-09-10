@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "backend": "cd backend && uvicorn main:app --reload --port 8000",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
+
   },
   "dependencies": {
     "leaflet": "^1.9.4",
