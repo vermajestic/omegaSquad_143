@@ -13,15 +13,11 @@
 | Slide # | Topic | Key Contents |
 | :---: | :--- | :--- |
 | **01** | Title & Team Details | Project Title: **Ocean Sentinel**, Team Name: **Omega Squad (Team 143)**, Theme: **Smart Automation / Disaster Management** |
-| **02** | Problem Statement & Background | Satellite detection challenges, illegal bilge dumping, delayed response times in maritime EEZ |
-| **03** | Proposed Solution Overview | End-to-end automated platform: SAR AI detection + Physics drift modeling + 4-pillar vessel attribution |
-| **04** | AI / ML Pipeline & Performance | Sentinel-1 SAR imagery, ResNet-34 U-Net segmentation, radar backscatter analysis, accuracy metrics |
-| **05** | Maritime Physics & Drift Modeling | Hydrodynamic advection, 3% wind rule, Fay's spreading, reverse hindcast trajectory cone |
-| **06** | 4-Pillar Vessel Attribution | Proximity (40%), Trajectory alignment (25%), Risk profile (20%), AIS dark-vessel anomalies (15%) |
-| **07** | Live Platform Demonstration | Interactive UI walkthrough, SAR upload, real-time segmentation overlay, suspect vessel ranking |
-| **08** | Innovation, Feasibility & Tech Stack | React 19, FastAPI, PyTorch, Leaflet, Esri World Imagery, scalable microservice architecture |
-| **09** | Impact, Benefits & Next Steps | Coast Guard / Maritime authority deployment, automated alert dispatch, multi-satellite fusion |
-| **10** | Q&A & Team Acknowledgement | Team member roles, GitHub repository link, contact information |
+| **02** | Idea Title | Overview of the AI system's architecture, data sources, and 5-engine pipeline. |
+| **03** | Technical Approach | Comprehensive breakdown of the technical methodology, process flow, and specific software tools used. |
+| **04** | Feasibility and Viability | Analysis of project feasibility, success factors, technical challenges, and methods to overcome them. |
+| **05** | Impact and Benefits | Examination of the project's environmental impact, social benefits, and specific utility for maritime stakeholders. |
+| **06** | Research and References | Links to the live deployment, code repository, demo video, and academic/regulatory references. |
 
 ---
 
