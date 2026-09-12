@@ -12,7 +12,7 @@
 
 | Slide # | Topic | Key Contents |
 | :---: | :--- | :--- |
-| **01** | Title & Team Details | Project Title: **Ocean Sentinel**, Team Name: **Omega Squad (Team 143)**, Theme: **Smart Automation / Disaster Management** |
+| **01** | Title & Team Details | Project Title: **Ocean Sentinel**, Team Name: **Omega Squad**, Theme: **Smart Automation / Disaster Management** |
 | **02** | Idea Title | Overview of the AI system's architecture, data sources, and 5-engine pipeline. |
 | **03** | Technical Approach | Comprehensive breakdown of the technical methodology, process flow, and specific software tools used. |
 | **04** | Feasibility and Viability | Analysis of project feasibility, success factors, technical challenges, and methods to overcome them. |
@@ -23,6 +23,6 @@
 
 ## Team Information
 - **Team Name**: Omega Squad
-- **Team ID / Number**: 143
+- **Team ID / Number**:-
 - **Project**: Ocean Sentinel — AI Satellite Oil Spill Detection & Maritime Attribution System
 - **Repository**: [https://github.com/vermajestic/omegaSquad_143.git](https://github.com/vermajestic/omegaSquad_143.git)
