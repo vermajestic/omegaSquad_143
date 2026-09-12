@@ -1,7 +1,7 @@
 # Ocean Sentinel — AI Satellite Oil Spill Detection & Maritime Attribution System
 
 > **Smart India Hackathon (SIH 2026)**  
-> **Team Name:** Omega Squad | **Team ID:** 143  
+> **Team Name:** Omega Squad | **Team ID:** - 
 > **Repository:** [https://github.com/vermajestic/omegaSquad_143.git](https://github.com/vermajestic/omegaSquad_143.git)
 
 ---
