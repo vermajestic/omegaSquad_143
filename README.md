@@ -240,7 +240,7 @@ Navigate to: **`http://localhost:5173`**
 ## 13. Team Details
 
 - **Team Name:** Omega Squad
-- **Team ID:** 143
+- **Team ID:** -
 - **Primary Contact / Leader:** Raunak Rana (`raunakrana175@gmail.com` / GitHub: [`vermajestic`](https://github.com/vermajestic))
 - **Hackathon:** Smart India Hackathon (SIH 2026)
 - **Repository:** [https://github.com/vermajestic/omegaSquad_143.git](https://github.com/vermajestic/omegaSquad_143.git)
